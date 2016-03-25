@@ -93,12 +93,12 @@
 		25522F761C990F6A009F3091 /* SCButtonView */ = {
 			isa = PBXGroup;
 			children = (
+				25522F7A1C991080009F3091 /* SCButtonsView.h */,
+				25522F7B1C991080009F3091 /* SCButtonsView.m */,
 				25522F771C990FC3009F3091 /* SCNoDelayButtonScrollView.h */,
 				25522F781C990FC3009F3091 /* SCNoDelayButtonScrollView.m */,
 				25522F7D1C993CE1009F3091 /* SCButton.h */,
 				25522F7E1C993CE1009F3091 /* SCButton.m */,
-				25522F7A1C991080009F3091 /* SCButtonsView.h */,
-				25522F7B1C991080009F3091 /* SCButtonsView.m */,
 			);
 			name = SCButtonView;
 			path = SCButtonsView;

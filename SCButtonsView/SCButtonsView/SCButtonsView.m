@@ -1,6 +1,6 @@
 //
 //  SCButtonsView.m
-//  SCButtonsView
+//  SCButtonView
 //
 //  Created by sichenwang on 16/3/16.
 //  Copyright © 2016年 sichenwang. All rights reserved.
@@ -53,12 +53,6 @@
     return buttonView;
 }
 
-- (void)addAction:(SCButtonAction *)action {
-    NSMutableArray *arrM = [NSMutableArray arrayWithArray:self.actions];
-    [arrM addObject:action];
-    self.actions = [arrM copy];
-}
-
 - (void)layoutSubviews {
     [super layoutSubviews];
     
@@ -77,8 +71,13 @@
         button.tag = 1000 + i;
         [self addSubview:button];
         [self.buttons addObject:button];
-        [self createTipLabelInButton:button];
     }
+}
+
+- (void)addAction:(SCButtonAction *)action {
+    NSMutableArray *arrM = [NSMutableArray arrayWithArray:self.actions];
+    [arrM addObject:action];
+    self.actions = [arrM copy];
 }
 
 #pragma mark - Private Method
@@ -94,21 +93,6 @@
     button.titleLabel.font = [UIFont systemFontOfSize:11];
     [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
     return button;
-}
-
-- (UILabel *)createTipLabelInButton:(SCButton *)button {
-    UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 17, 17)];
-    label.backgroundColor = [UIColor colorWithRed:255/255.0 green:102/255.0 blue:102/255.0 alpha:1];
-    label.tag = 200;
-    label.layer.masksToBounds = YES;
-    label.layer.cornerRadius = 8.5;
-    label.font = [UIFont systemFontOfSize:10];
-    label.textAlignment = NSTextAlignmentCenter;
-    label.textColor = [UIColor whiteColor];
-    label.center = CGPointMake(button.frame.size.width * 3 / 5 + 5, button.frame.size.height * 2 / 5 - 10);
-    label.hidden = YES;
-    [button addSubview:label];
-    return label;
 }
 
 - (UIImage *)backgroundImageWithColor:(UIColor *)color {
@@ -157,21 +141,6 @@
         _rows = (self.actions.count + self.columns - 1) / self.columns;
     }
     return _rows;
-}
-
-- (UIButton *)buttonAtIndex:(NSUInteger)index {
-    if (self.buttons.count > index) {
-        return [self.buttons objectAtIndex:index];
-    }
-    return nil;
-}
-
-- (UILabel *)tipLabelAtIndex:(NSUInteger)index {
-    if (self.buttons.count > index) {
-        UIButton *button = [self.buttons objectAtIndex:index];
-        return [button viewWithTag:200];
-    }
-    return nil;
 }
 
 @end

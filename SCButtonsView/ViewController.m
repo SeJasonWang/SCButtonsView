@@ -22,13 +22,13 @@
     scrollView.contentSize = CGSizeMake(size.width, size.height * 2);
     [self.view addSubview:scrollView];
     
-    SCButtonsView *buttonView = [SCButtonsView buttonViewWithColumns:3];
-    buttonView.frame = CGRectMake(0, 0.5, size.width, size.height * 2 - 1.0);
-    [scrollView addSubview:buttonView];
+    SCButtonsView *buttonsView = [SCButtonsView buttonViewWithColumns:3];
+    buttonsView.frame = CGRectMake(0, 0.5, size.width, size.height * 2 - 1.0);
+    [scrollView addSubview:buttonsView];
     
     for (NSInteger i = 0; i < 24; i++) {
         SCButtonAction *action = [SCButtonAction actionWithImage:[UIImage imageNamed:@"home_add"] title:@"首页" handler:nil];
-        [buttonView addAction:action];
+        [buttonsView addAction:action];
     }
 }
 
