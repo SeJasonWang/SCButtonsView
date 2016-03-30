@@ -27,11 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 @required
 
 - (NSInteger)numberOfButtonsInButtonsView:(SCButtonsView *)buttonsView;
+- (nonnull UIButton *)buttonsView:(SCButtonsView *)buttonsView buttonAtIndex:(NSInteger)index;
 
 @optional
 
 - (NSInteger)columnsInButtonsView:(SCButtonsView *)buttonsView; // default is 3
-- (nonnull UIButton *)buttonsView:(SCButtonsView *)buttonsView buttonAtIndex:(NSInteger)index;
 
 @end
 

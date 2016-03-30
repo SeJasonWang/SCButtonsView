@@ -88,13 +88,7 @@
 #pragma mark - Private Method
 
 - (UIButton *)createButtonAtIndex:(NSInteger)index {
-    UIButton *button = nil;
-    if ([self.delegate respondsToSelector:@selector(buttonsView:buttonAtIndex:)]) {
-        button = [self.delegate buttonsView:self buttonAtIndex:index];
-        if (button) {
-            return button;
-        }
-    }
+    UIButton *button = [self.delegate buttonsView:self buttonAtIndex:index];
     NSAssert(button != nil, @"SCButtonsView <%@> failed to obtain a button from its delegate (%@)", self, self.delegate);
     return button;
 }
