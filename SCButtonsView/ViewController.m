@@ -24,12 +24,14 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    self.view.backgroundColor = [UIColor orangeColor];
+    
     CGSize size = [UIScreen mainScreen].bounds.size;
     SCNoDelayButtonScrollView *scrollView = [[SCNoDelayButtonScrollView alloc] initWithFrame:self.view.bounds];
     scrollView.contentSize = CGSizeMake(size.width, size.height * 1.5);
     [self.view addSubview:scrollView];
     
-    SCButtonsView *buttonsView = [[SCButtonsView alloc] initWithFrame:CGRectMake(0, 0.5, size.width, size.height * 1.5 - 1.0)];
+    SCButtonsView *buttonsView = [[SCButtonsView alloc] initWithFrame:CGRectMake(50, 0.5, size.width - 100, size.height * 1.5 - 1.0)];
     buttonsView.delegate = self;
     [scrollView addSubview:buttonsView];
     

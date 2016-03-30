@@ -69,7 +69,7 @@
     CGFloat h = self.rowHeight;
     for (NSInteger i = 0; i < numberOfButtons; i++) {
         UIButton *button = [self createButtonAtIndex:i];
-        CGFloat x = (w + 0.5) * (i % columns);
+        CGFloat x = (w + 0.5) * (i % columns) + 0.5;
         CGFloat y = (h + 0.5) * (i / columns) + 0.5;
         button.frame = CGRectMake(x, y, w, h);
         [self addSubview:button];
@@ -135,7 +135,7 @@
 
 - (CGFloat)columnWidth {
     if (!_columnWidth) {
-        _columnWidth = (self.frame.size.width - (self.columns - 1) * 0.5) / self.columns;
+        _columnWidth = (self.frame.size.width - (self.columns + 1) * 0.5) / self.columns;
     }
     return _columnWidth;
 }
