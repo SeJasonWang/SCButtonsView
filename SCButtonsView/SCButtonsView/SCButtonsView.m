@@ -74,6 +74,10 @@
         button.frame = CGRectMake(x, y, w, h);
         [self addSubview:button];
         [self.buttons addObject:button];
+        
+        if ([self.delegate respondsToSelector:@selector(buttonsView:willDisplayButton:index:)]) {
+            [self.delegate buttonsView:self willDisplayButton:button index:i];
+        }
     }
 }
 

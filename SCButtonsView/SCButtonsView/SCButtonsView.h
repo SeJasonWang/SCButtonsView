@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSInteger)columnsInButtonsView:(SCButtonsView *)buttonsView; // default is 3
 
+- (void)buttonsView:(SCButtonsView *)buttonsView willDisplayButton:(UIButton *)button index:(NSInteger)index;
+
 @end
 
 NS_ASSUME_NONNULL_END
