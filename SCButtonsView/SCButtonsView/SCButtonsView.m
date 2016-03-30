@@ -9,86 +9,90 @@
 #import "SCButtonsView.h"
 #import "SCButton.h"
 
-@interface SCButtonAction()
-
-@property (nonatomic, strong, readwrite) UIImage *image;
-@property (nonatomic, copy, readwrite) NSString *title;
-@property (nonatomic, copy, readwrite) void(^handler)(SCButtonAction *action);
-
-@end
-
-@implementation SCButtonAction
-
-+ (instancetype)actionWithImage:(UIImage *)image title:(NSString *)title handler:(void (^)(SCButtonAction *))handler {
-    SCButtonAction *action = [[SCButtonAction alloc] init];
-    action.image = image;
-    action.title = title;
-    action.handler = handler;
-    return action;
-}
-
-@end
-
-@interface SCButtonsView()
-
-@property (nonatomic, strong, readwrite) NSArray <SCButtonAction *> *actions;
-@property (nonatomic, assign, readwrite) NSInteger columns;
-@property (nonatomic, assign, readwrite) NSInteger rows;
-@property (nonatomic, assign) CGFloat columnWidth;
-@property (nonatomic, assign) CGFloat rowHeight;
-@property (nonatomic, strong) NSMutableArray *buttons;
-
-@end
-
 @implementation SCButtonsView
-
-+ (instancetype)buttonViewWithColumns:(NSInteger)columns {
-    return [self buttonViewWithColumns:columns frame:CGRectZero];
+{
+    NSMutableArray *_buttons;
+    BOOL _needsReload;
 }
 
-+ (instancetype)buttonViewWithColumns:(NSInteger)columns frame:(CGRect)frame {
-    SCButtonsView *buttonView = [[SCButtonsView alloc] initWithFrame:frame];
-    buttonView.backgroundColor = [UIColor colorWithRed:221/255.0f green:221/255.0f blue:221/255.0f alpha:1.000];
-    buttonView.columns = columns;
-    return buttonView;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self initializeSubViews];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self initializeSubViews];
+    }
+    return self;
+}
+
+- (void)initializeSubViews {
+    _needsReload = YES;
+    self.backgroundColor = [UIColor colorWithRed:221/255.0f green:221/255.0f blue:221/255.0f alpha:1.000];
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
+    if (_needsReload) {
+        _needsReload = NO;
+        [self reloadData];
+    }
+}
+
+- (void)reloadData {
     if (!self.frame.size.height) {
         return;
     }
     
-    NSInteger columns = self.columns;
+    [self.buttons makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.buttons removeAllObjects];
+    
     CGFloat w = self.columnWidth;
     CGFloat h = self.rowHeight;
-    for (NSInteger i = self.buttons.count; i < self.actions.count; i++) {
-        SCButton *button = [self createButtonWithAction:self.actions[i]];
+    NSInteger numberOfButtons = self.numberOfButtons;
+    NSInteger columns = self.columns;
+    for (NSInteger i = 0; i < numberOfButtons; i++) {
+        SCButton *button = [self createButtonAtIndex:i];
         CGFloat x = (w + 0.5) * (i % columns);
         CGFloat y = (h + 0.5) * (i / columns) + 0.5;
         button.frame = CGRectMake(x, y, w, h);
-        button.tag = 1000 + i;
+        button.tag = i;
         [self addSubview:button];
         [self.buttons addObject:button];
     }
 }
 
-- (void)addAction:(SCButtonAction *)action {
-    NSMutableArray *arrM = [NSMutableArray arrayWithArray:self.actions];
-    [arrM addObject:action];
-    self.actions = [arrM copy];
+- (UIButton *)buttonAtIndex:(NSInteger)index {
+    if (index >= 0 && index < self.buttons.count) {
+        return self.buttons[index];
+    } else {
+        return nil;
+    }
 }
 
 #pragma mark - Private Method
 
-- (SCButton *)createButtonWithAction:(SCButtonAction *)action {
+- (SCButton *)createButtonAtIndex:(NSInteger)index {
+    
+    NSString *text;
+    UIImage *image;
+    if ([self.delegate respondsToSelector:@selector(buttonsView:textAtIndex:)]) {
+        text = [self.delegate buttonsView:self textAtIndex:index];
+    }
+    if ([self.delegate respondsToSelector:@selector(buttonsView:imageAtIndex:)]) {
+        image = [self.delegate buttonsView:self imageAtIndex:index];
+    }
+    
     SCButton *button = [SCButton buttonWithType:UIButtonTypeCustom];
     [button setBackgroundColor:[UIColor whiteColor]];
     [button setBackgroundImage:[self backgroundImageWithColor:[UIColor colorWithRed:238/255.0 green:238/255.0 blue:238/255.0 alpha:1]] forState:UIControlStateHighlighted];
-    [button setImage:action.image forState:UIControlStateNormal];
-    [button setImage:action.image forState:UIControlStateHighlighted];
-    [button setTitle:action.title forState:UIControlStateNormal];
+    [button setImage:image forState:UIControlStateNormal];
+    [button setImage:image forState:UIControlStateHighlighted];
+    [button setTitle:text forState:UIControlStateNormal];
     [button setTitleColor:[UIColor colorWithWhite:153/255.0 alpha:1] forState:UIControlStateNormal];
     button.titleLabel.font = [UIFont systemFontOfSize:11];
     [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -107,9 +111,8 @@
 }
 
 - (void)buttonPressed:(UIButton *)sender {
-    SCButtonAction *action = self.actions[sender.tag - 1000];
-    if (action.handler) {
-        action.handler(action);
+    if ([self.delegate respondsToSelector:@selector(buttonsView:didPressedAtIndex:)]) {
+        [self.delegate buttonsView:self didPressedAtIndex:sender.tag];
     }
 }
 
@@ -122,25 +125,28 @@
     return _buttons;
 }
 
-- (CGFloat)columnWidth {
-    if (!_columnWidth) {
-        _columnWidth = ([UIScreen mainScreen].bounds.size.width - (self.columns - 1) * 0.5) / self.columns;
+- (NSInteger)numberOfButtons {
+    return [self.delegate numberOfButtonsInButtonsView:self];
+}
+
+- (NSInteger)columns {
+    if ([self.delegate respondsToSelector:@selector(columnsInButtonsView:)]) {
+        return [self.delegate columnsInButtonsView:self] ? : 3;
+    } else {
+        return 3;
     }
-    return _columnWidth;
+}
+
+- (CGFloat)columnWidth {
+    return (self.frame.size.width - (self.columns - 1) * 0.5) / self.columns;
 }
 
 - (CGFloat)rowHeight {
-    if (!_rowHeight) {
-        _rowHeight = (self.frame.size.height - (self.rows + 1) * 0.5) / self.rows;
-    }
-    return _rowHeight;
+    return (self.frame.size.height - (self.rows + 1) * 0.5) / self.rows;
 }
 
 - (NSInteger)rows {
-    if (!_rows) {
-        _rows = (self.actions.count + self.columns - 1) / self.columns;
-    }
-    return _rows;
+    return (self.numberOfButtons + self.columns - 1) / self.columns;
 }
 
 @end

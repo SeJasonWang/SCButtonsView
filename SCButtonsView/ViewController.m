@@ -10,6 +10,10 @@
 #import "SCButtonsView.h"
 #import "SCNoDelayButtonScrollView.h"
 
+@interface ViewController()<SCButtonsViewDelegate>
+
+@end
+
 @implementation ViewController
 
 - (void)viewDidLoad {
@@ -19,22 +23,24 @@
     CGSize size = [UIScreen mainScreen].bounds.size;
 
     SCNoDelayButtonScrollView *scrollView = [[SCNoDelayButtonScrollView alloc] initWithFrame:self.view.bounds];
-    scrollView.contentSize = CGSizeMake(size.width, size.height * 2);
+    scrollView.contentSize = CGSizeMake(size.width, size.height * 1.5);
     [self.view addSubview:scrollView];
     
-    SCButtonsView *buttonsView = [SCButtonsView buttonViewWithColumns:3];
-    buttonsView.frame = CGRectMake(0, 0.5, size.width, size.height * 2 - 1.0);
+    SCButtonsView *buttonsView = [[SCButtonsView alloc] initWithFrame:CGRectMake(0, 0.5, size.width, size.height * 1.5 - 1.0)];
+    buttonsView.delegate = self;
     [scrollView addSubview:buttonsView];
-    
-    for (NSInteger i = 0; i < 24; i++) {
-        SCButtonAction *action = [SCButtonAction actionWithImage:[UIImage imageNamed:@"home_add"] title:@"首页" handler:nil];
-        [buttonsView addAction:action];
-    }
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (NSInteger)numberOfButtonsInButtonsView:(SCButtonsView *)buttonsView {
+    return 18;
+}
+
+- (NSString *)buttonsView:(SCButtonsView *)buttonsView textAtIndex:(NSInteger)index {
+    return @"首页";
+}
+
+- (UIImage *)buttonsView:(SCButtonsView *)buttonsView imageAtIndex:(NSInteger)index {
+    return [UIImage imageNamed:@"home_add"];
 }
 
 @end
