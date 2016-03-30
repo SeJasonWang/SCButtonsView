@@ -31,10 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 - (NSInteger)columnsInButtonsView:(SCButtonsView *)buttonsView; // default is 3
-- (NSString *)buttonsView:(SCButtonsView *)buttonsView textAtIndex:(NSInteger)index;
-- (UIImage *)buttonsView:(SCButtonsView *)buttonsView imageAtIndex:(NSInteger)index;
-
-- (void)buttonsView:(SCButtonsView *)buttonsView didPressedAtIndex:(NSInteger)index;
+- (nonnull UIButton *)buttonsView:(SCButtonsView *)buttonsView buttonAtIndex:(NSInteger)index;
 
 @end
 

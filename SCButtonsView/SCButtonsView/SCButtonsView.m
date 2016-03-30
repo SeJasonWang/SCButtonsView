@@ -12,6 +12,11 @@
 @implementation SCButtonsView
 {
     NSMutableArray *_buttons;
+    NSInteger _numberOfButtons;
+    NSInteger _columns;
+    NSInteger _rows;
+    CGFloat   _columnWidth;
+    CGFloat   _rowHeight;
     BOOL _needsReload;
 }
 
@@ -43,24 +48,30 @@
     }
 }
 
+#pragma mark - Public Method
+
 - (void)reloadData {
-    if (!self.frame.size.height) {
+    if (!self.frame.size.height || !self.frame.size.width) {
         return;
     }
     
     [self.buttons makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    [self.buttons removeAllObjects];
+    _buttons = nil;
+    _numberOfButtons = 0;
+    _columns = 0;
+    _rows = 0;
+    _columnWidth = 0;
+    _rowHeight = 0;
     
-    CGFloat w = self.columnWidth;
-    CGFloat h = self.rowHeight;
     NSInteger numberOfButtons = self.numberOfButtons;
     NSInteger columns = self.columns;
+    CGFloat w = self.columnWidth;
+    CGFloat h = self.rowHeight;
     for (NSInteger i = 0; i < numberOfButtons; i++) {
-        SCButton *button = [self createButtonAtIndex:i];
+        UIButton *button = [self createButtonAtIndex:i];
         CGFloat x = (w + 0.5) * (i % columns);
         CGFloat y = (h + 0.5) * (i / columns) + 0.5;
         button.frame = CGRectMake(x, y, w, h);
-        button.tag = i;
         [self addSubview:button];
         [self.buttons addObject:button];
     }
@@ -76,44 +87,16 @@
 
 #pragma mark - Private Method
 
-- (SCButton *)createButtonAtIndex:(NSInteger)index {
-    
-    NSString *text;
-    UIImage *image;
-    if ([self.delegate respondsToSelector:@selector(buttonsView:textAtIndex:)]) {
-        text = [self.delegate buttonsView:self textAtIndex:index];
+- (UIButton *)createButtonAtIndex:(NSInteger)index {
+    UIButton *button = nil;
+    if ([self.delegate respondsToSelector:@selector(buttonsView:buttonAtIndex:)]) {
+        button = [self.delegate buttonsView:self buttonAtIndex:index];
+        if (button) {
+            return button;
+        }
     }
-    if ([self.delegate respondsToSelector:@selector(buttonsView:imageAtIndex:)]) {
-        image = [self.delegate buttonsView:self imageAtIndex:index];
-    }
-    
-    SCButton *button = [SCButton buttonWithType:UIButtonTypeCustom];
-    [button setBackgroundColor:[UIColor whiteColor]];
-    [button setBackgroundImage:[self backgroundImageWithColor:[UIColor colorWithRed:238/255.0 green:238/255.0 blue:238/255.0 alpha:1]] forState:UIControlStateHighlighted];
-    [button setImage:image forState:UIControlStateNormal];
-    [button setImage:image forState:UIControlStateHighlighted];
-    [button setTitle:text forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor colorWithWhite:153/255.0 alpha:1] forState:UIControlStateNormal];
-    button.titleLabel.font = [UIFont systemFontOfSize:11];
-    [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    NSAssert(button != nil, @"SCButtonsView <%@> failed to obtain a button from its delegate (%@)", self, self.delegate);
     return button;
-}
-
-- (UIImage *)backgroundImageWithColor:(UIColor *)color {
-    CGRect rect = CGRectMake(0, 0, 1, 1);
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, rect);
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
-
-- (void)buttonPressed:(UIButton *)sender {
-    if ([self.delegate respondsToSelector:@selector(buttonsView:didPressedAtIndex:)]) {
-        [self.delegate buttonsView:self didPressedAtIndex:sender.tag];
-    }
 }
 
 #pragma mark - Getter
@@ -126,27 +109,42 @@
 }
 
 - (NSInteger)numberOfButtons {
-    return [self.delegate numberOfButtonsInButtonsView:self];
+    if (!_numberOfButtons) {
+        _numberOfButtons = [self.delegate numberOfButtonsInButtonsView:self];
+    }
+    return _numberOfButtons;
 }
 
 - (NSInteger)columns {
-    if ([self.delegate respondsToSelector:@selector(columnsInButtonsView:)]) {
-        return [self.delegate columnsInButtonsView:self] ? : 3;
-    } else {
-        return 3;
+    if (!_columns) {
+        if ([self.delegate respondsToSelector:@selector(columnsInButtonsView:)]) {
+            _columns = [self.delegate columnsInButtonsView:self] ? : 3;
+        } else {
+            _columns = 3;
+        }
     }
-}
-
-- (CGFloat)columnWidth {
-    return (self.frame.size.width - (self.columns - 1) * 0.5) / self.columns;
-}
-
-- (CGFloat)rowHeight {
-    return (self.frame.size.height - (self.rows + 1) * 0.5) / self.rows;
+    return _columns;
 }
 
 - (NSInteger)rows {
-    return (self.numberOfButtons + self.columns - 1) / self.columns;
+    if (!_rows) {
+        _rows = (self.numberOfButtons + self.columns - 1) / self.columns;
+    }
+    return _rows;
+}
+
+- (CGFloat)columnWidth {
+    if (!_columnWidth) {
+        _columnWidth = (self.frame.size.width - (self.columns - 1) * 0.5) / self.columns;
+    }
+    return _columnWidth;
+}
+
+- (CGFloat)rowHeight {
+    if (!_rowHeight) {
+        _rowHeight = (self.frame.size.height - (self.rows + 1) * 0.5) / self.rows;
+    }
+    return _rowHeight;
 }
 
 @end
